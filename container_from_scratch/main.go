@@ -23,6 +23,8 @@ func main() {
 
 func run(command ...string) {
 	log.Println("Executing", command, "from run")
+
+	// sys_clone
 	cmd := exec.Command("/proc/self/exe", append([]string{"child"}, command[0:]...)...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -34,6 +36,7 @@ func run(command ...string) {
 	// CLONE_NEWNS namespace isolates mounts
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
+		Unshareflags: syscall.CLONE_NEWNS,
 	}
 
 	// Run child using namespaces. The command provided will be executed inside that.
@@ -53,15 +56,14 @@ func child(command ...string) {
 
 	must(syscall.Sethostname([]byte("container")))
 
-	/*
-	// Chroot to a directory
-	must(syscall.Chroot("./myroot"))
-	// Change directory after chroot
-	must(os.Chdir("/"))
-	// Mount /proc inside container so that `ps` command works
-	must(syscall.Mount("proc", "proc", "proc", 0, ""))
-	*/
-
+	// // Chroot to a directory
+	// must(syscall.Chroot("./myroot"))
+	// // Change directory after chroot
+	// must(os.Chdir("/"))
+	// // Mount /proc inside container so that `ps` command works
+	// must(syscall.Mount("proc", "proc", "proc", 0, ""))
+	
+	//created by ghpark: pivotRoot
 	pivotRoot("./myroot")
 
 	// Mount a temporary filesystem
@@ -70,6 +72,7 @@ func child(command ...string) {
 	}
 	must(syscall.Mount("something", "mytemp", "tmpfs", 0, ""))
 
+	// exec command
 	must(cmd.Run())
 
 	// Cleanup mount
@@ -94,6 +97,7 @@ func cg() {
 	must(ioutil.WriteFile(filepath.Join(containers_from_scratch, "cgroup.procs"), []byte(pid), 0700))
 }
 
+//created by ghpark
 func pivotRoot(src_root string){
 	if _, err := os.Stat("./new_root"); os.IsNotExist(err) {
 		must(os.Mkdir("./new_root", os.ModePerm))
