@@ -1,0 +1,1 @@
+exec unshare --mount --net --uts --pid --fork  ./entrypoint.sh

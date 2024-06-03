@@ -88,7 +88,7 @@ func cg() {
 	containers_from_scratch := filepath.Join(pids, "containers_from_scratch")
 	os.Mkdir(containers_from_scratch, 0755)
 	// Limit to max 20 pids
-	must(ioutil.WriteFile(filepath.Join(containers_from_scratch, "pids.max"), []byte("20"), 0700))
+	must(ioutil.WriteFile(filepath.Join(containers_from_scratch, "pids.max"), []byte("5"), 0700))
 	// Cleanup cgroup when it is not being used
 	must(ioutil.WriteFile(filepath.Join(containers_from_scratch, "notify_on_release"), []byte("1"), 0700))
 
