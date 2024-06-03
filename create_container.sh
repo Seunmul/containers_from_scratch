@@ -1,1 +1,1 @@
-exec unshare --mount --net --uts --pid --fork  ./entrypoint.sh
+exec unshare --mount --net --uts --pid --fork  ./setup_container.sh "$@"
